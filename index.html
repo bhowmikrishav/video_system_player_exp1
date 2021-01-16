@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video</title>
+</head>
+<body>
+    <video height="400px" width="960px" controls src="" id="video"></video>
+</body>
+</html>
+<script>
+    const video = document.getElementById('video')
+    var n = 0;
+    const assetURL = '/n'
+    var mimeCodec = 'video/webm;codecs="vp9,opus"'
+    /**@type{MediaSource}*/
+    var mediaSource = new MediaSource()
+    video.src = window.URL.createObjectURL(mediaSource)
+    mediaSource.addEventListener('sourceopen', async () => {
+        var sourceBuffer = mediaSource.addSourceBuffer(mimeCodec)
+        sourceBuffer.mode = 'segment';
+        sourceBuffer.appendBuffer(
+            new Uint8Array(await get(assetURL.replace('n', n++)))
+        )
+        //this chunk is skipped, as source buffer is set to segment
+        //sourceBuffer.appendBuffer(
+            new Uint8Array(await get(assetURL.replace('n', n++)))
+        //)
+        sourceBuffer.appendBuffer(
+            new Uint8Array(await get(assetURL.replace('n', n++)))
+        )
+        sourceBuffer.appendBuffer(
+            new Uint8Array(await get(assetURL.replace('n', n++)))
+        )
+        sourceBuffer.appendBuffer(
+            new Uint8Array(await get(assetURL.replace('n', n++)))
+        )
+        //mediaSource.endOfStream();
+    })
+
+    function get(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        return new Promise((resolve, reject)=>{
+            xhr.send();
+            xhr.onload = function() {
+                if (xhr.status !== 200) {
+                    reject('Unexpected status code ' + xhr.status + ' for ' + url);return;
+                }
+                resolve(new Uint8Array(xhr.response));
+            };
+        })
+    }
+</script>
